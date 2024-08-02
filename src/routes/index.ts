@@ -11,9 +11,12 @@ router.post('/subs', async function (req, res, next) {
   const videoId = req.body.videoId;
   console.time('Parsed SubTitle');
   const subs = await getSubtitles(videoId);
+  if (!subs) {
+    return res.status(500).send('Error fetching subtitles');
+  }
   console.timeEnd('Parsed SubTitle');
   console.time('Changed cleaning HTML elements');
-  const purifiedSubs = subs?.subtitles.map((item: any) => {
+  const purifiedSubs = subs.subtitles.map((item: any) => {
     const text = decodeHTMLEntities(item._);
     return {
       ...item,
@@ -21,10 +24,10 @@ router.post('/subs', async function (req, res, next) {
     };
   });
   console.timeEnd('Changed cleaning HTML elements');
-  //const rawText = purifiedSubs.map((item: any) => item._).join('');
+  const rawText = purifiedSubs.map((item: any) => item._).join('');
 
   const transcriptEntity = {
-    title: subs?.title,
+    title: subs.title,
     subtitleList: purifiedSubs,
     // rawText: rawText
   };
@@ -38,6 +41,8 @@ router.post('/subs', async function (req, res, next) {
     })
     .catch((err) => next(err));
 });
+
+
 // router.use('/auth', regRouter);
 // router.use('/users', auth, usersRouter);
 // router.use('/exercises', exsRouter);
