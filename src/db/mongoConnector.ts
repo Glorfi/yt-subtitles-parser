@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import dbConnect from '../../api/dbConnect.js';
 import { log } from 'console';
+import transcriptSchema from './models/transcriptSchema.js';
 
 dotenv.config();
 const currentDb =
@@ -12,3 +13,7 @@ const currentDb =
 await dbConnect()
   .then(() => console.log('Connected to main MongoDB'))
   .catch(() => console.log('Error occured'));
+
+const Transcripts = mongoose.model('transcript', transcriptSchema);
+
+export { Transcripts };
