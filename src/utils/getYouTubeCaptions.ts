@@ -82,23 +82,20 @@ async function getSubtitles(
   let browser = null;
 
   if (process.env.NODE_ENV === 'development') {
+    console.log('Staring dev browser');
     browser = await puppeteer.launch({
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
       headless: true,
     });
   } else if (process.env.NODE_ENV === 'production') {
-    const executablePath = await chromium.executablePath();
+    console.log('Staring prod browser');
 
     browser = await puppeteerCore.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
-      executablePath: executablePath,
+      executablePath: await chromium.executablePath(),
       headless: chromium.headless,
     });
-  }
-
-  if (!browser) {
-    throw new Error('Browser instance is not created');
   }
 
   if (!browser) {
@@ -109,17 +106,20 @@ async function getSubtitles(
 
   // Открываем страницу видео на YouTube
   await page.goto(`https://www.youtube.com/watch?v=${videoId}`, {
-    waitUntil: 'networkidle2',
+    waitUntil: 'networkidle0',
   });
 
   // Получаем HTML страницы
   const content = await page.content();
   const videoTitle = (await page.title()).split(' - ')[0];
+  console.log(videoTitle);
+  
 
   // Ищем URL субтитров с помощью регулярного выражения
   const match = content.match(
     /"https:\/\/www\.youtube\.com\/api\/timedtext\?([^"]+)"/
   );
+
   if (match) {
     // Декодируем URL
     const subtitleUrl = decodeURIComponent(
