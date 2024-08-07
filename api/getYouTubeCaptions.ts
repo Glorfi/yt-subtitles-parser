@@ -60,7 +60,6 @@
 //   // Закрываем браузер
 //   await browser.close();
 // }
-
 import * as puppeteer from 'puppeteer';
 import chromium from '@sparticuz/chromium';
 import puppeteerCore from 'puppeteer-core';
@@ -76,6 +75,7 @@ interface SubtitlesResponse {
   subtitles: Subtitle[];
 }
 dotenv.config();
+
 async function getSubtitles(
   videoId: string
 ): Promise<SubtitlesResponse | null> {
@@ -89,9 +89,20 @@ async function getSubtitles(
     });
   } else if (process.env.NODE_ENV === 'production') {
     console.log('Staring prod browser');
-
     browser = await puppeteerCore.launch({
-      args: chromium.args,
+      args: [
+        ...chromium.args,
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-infobars',
+        '--window-position=0,0',
+        '--ignore-certifcate-errors',
+        '--ignore-certifcate-errors-spki-list',
+        '--disable-gpu',
+        '--disable-dev-shm-usage',
+        '--disable-software-rasterizer',
+        '--disable-blink-features=AutomationControlled',
+      ],
       defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath(),
       headless: chromium.headless,
@@ -103,56 +114,60 @@ async function getSubtitles(
   }
 
   const page = await browser.newPage();
+  await page.setUserAgent(
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+  );
 
-  // Открываем страницу видео на YouTube
   await page.goto(`https://www.youtube.com/watch?v=${videoId}`, {
     waitUntil: 'networkidle0',
   });
 
-  // Получаем HTML страницы
   const content = await page.content();
   const videoTitle = (await page.title()).split(' - ')[0];
-  console.log(videoTitle);
-  
+  console.log('Video Title:', videoTitle);
 
-  // Ищем URL субтитров с помощью регулярного выражения
   const match = content.match(
     /"https:\/\/www\.youtube\.com\/api\/timedtext\?([^"]+)"/
   );
+  console.log('Match:', match);
 
   if (match) {
-    // Декодируем URL
     const subtitleUrl = decodeURIComponent(
       match[0].replace(/\\u0026/g, '&').slice(1, -1)
     );
     console.log('URL субтитров:', subtitleUrl);
 
-    // Открываем страницу субтитров и извлекаем текст
-    const response = await page.goto(subtitleUrl, {
-      waitUntil: 'networkidle2',
-    });
-    const subtitles = await response?.text();
-
-    // Удаляем лишние пробелы и символы перед первым тегом
-    const cleanedSubtitles = subtitles?.replace(/^\s+/, '');
-
-    // Парсим XML
-    const xmlParser = new xml2js.Parser();
     try {
-      const result = await xmlParser.parseStringPromise(
-        cleanedSubtitles as string
-      );
-      const content = result.transcript.text;
-      const obj: SubtitlesResponse = {
-        title: videoTitle,
-        subtitles: content,
-      };
-      await browser.close();
-      return obj;
-    } catch (error) {
-      throw new Error('XML Parsing Error:');
+      const response = await page.goto(subtitleUrl, {
+        waitUntil: 'networkidle2',
+      });
+      if (!response) {
+        throw new Error('Failed to fetch subtitles');
+      }
+
+      const subtitles = await response.text();
+      const cleanedSubtitles = subtitles.replace(/^\s+/, '');
+
+      const xmlParser = new xml2js.Parser();
+      try {
+        const result = await xmlParser.parseStringPromise(cleanedSubtitles);
+        const content = result.transcript.text;
+        const obj: SubtitlesResponse = {
+          title: videoTitle,
+          subtitles: content,
+        };
+        await browser.close();
+        return obj;
+      } catch (xmlError) {
+        console.error('XML Parsing Error:', xmlError);
+        throw new Error('XML Parsing Error');
+      }
+    } catch (fetchError) {
+      console.error('Error fetching subtitles:', fetchError);
+      throw new Error('Failed to fetch subtitles');
     }
   } else {
+    console.error('Subtitles not found in the page content');
     throw new Error('Субтитры не найдены');
   }
 }
