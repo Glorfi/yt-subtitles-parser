@@ -31,10 +31,10 @@ const transcriptSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-    expires: 120,
+    expires: 86400,
   },
 });
 
-transcriptSchema.index({ createdAt: 1 }, { expireAfterSeconds: 120 });
+transcriptSchema.index({ createdAt: 1 }, { expireAfterSeconds: 86400 });
 
 export default transcriptSchema;

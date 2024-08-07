@@ -4,44 +4,13 @@ import toSrtTime from '../utils/toSrtTime.js';
 import fs from 'fs';
 import decodeHTMLEntities from '../utils/decodeHTMLEntities.js';
 import { Transcripts } from '../db/mongoConnector.js';
+import { parseCaptions } from '../controllers/transcript.js';
+import { parseAndTransformToText } from '../controllers/texts.js';
 
 export const router = express.Router();
 
-router.post('/subs', async function (req, res, next) {
-  const videoId = req.body.videoId;
-
-  const subs = await getSubtitles(videoId);
-  if (!subs) {
-    return res.status(500).send('Error fetching subtitles');
-  }
-
-  const purifiedSubs = subs.subtitles.map((item: any) => {
-    const text = decodeHTMLEntities(item._);
-    return {
-      ...item,
-      _: text,
-    };
-  });
-  const rawText = purifiedSubs.map((item: any) => item._).join('');
-
-  const transcriptEntity = {
-    title: subs.title,
-    subtitleList: purifiedSubs,
-    // rawText: rawText
-  };
-  Transcripts.create(transcriptEntity)
-    .then((transcript) => {
-      res.send(transcript._id);
-    })
-    .catch((err) => next(err));
-});
-
-// router.use('/auth', regRouter);
-// router.use('/users', auth, usersRouter);
-// router.use('/exercises', exsRouter);
-// router.use('/sentences', auth, sentencesRouter);
-// router.use('/topics', auth, topicsRouter);
-//router.get('/crash', () => {throw new Error("Я упал подними меня")})
+router.post('/subtitles', parseCaptions);
+router.post('/texts', parseAndTransformToText);
 
 // MAKING SRT LOGIC
 // let srtContent = purifiedSubs
