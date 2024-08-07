@@ -10,9 +10,6 @@
         "api/index.ts": {
             "maxDuration": 60
         },
-        "api/getYouTubeCaptions.ts": {
-            "maxDuration": 60
-        },
         "api/openAIrequest.ts": {
             "maxDuration": 60
         },
