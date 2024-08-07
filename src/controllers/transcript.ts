@@ -23,16 +23,15 @@ export async function parseCaptions(
       _: text,
     };
   });
-  const rawText = purifiedSubs.map((item: any) => item._).join('');
+  //const rawText = purifiedSubs.map((item: any) => item._).join('');
 
   const transcriptEntity = {
     title: subs.title,
     subtitleList: purifiedSubs,
-    rawText,
   };
   Transcripts.create(transcriptEntity)
     .then((transcript) => {
-      res.send(transcript);
+      res.send(transcript._id);
     })
     .catch((err) => next(err));
 }
