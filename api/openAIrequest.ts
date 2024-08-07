@@ -3,7 +3,7 @@
 // import dotenv from 'dotenv';
 // dotenv.config();
 
-export async function openAIRequest(prompt: string) {
+async function openAIRequest(prompt: string) {
   return fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -28,3 +28,5 @@ export async function openAIRequest(prompt: string) {
     })
     .catch((err) => err);
 }
+
+export default openAIRequest
