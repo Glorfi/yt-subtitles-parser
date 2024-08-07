@@ -2,7 +2,7 @@ import { NextFunction, Response } from 'express';
 import { IParseCaptionBodyRequest } from '../interfaces/requests/ParseCaption.js';
 import getSubtitles from '../../api/getYouTubeCaptions.js';
 import decodeHTMLEntities from '../utils/decodeHTMLEntities.js';
-import { openAIRequest } from '../utils/openAIrequest.js';
+import { openAIRequest } from '../../api/openAIrequest.js';
 
 export async function parseAndTransformToText(
   req: IParseCaptionBodyRequest,
