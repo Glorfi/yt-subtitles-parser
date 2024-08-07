@@ -90,19 +90,7 @@ async function getSubtitles(
   } else if (process.env.NODE_ENV === 'production') {
     console.log('Staring prod browser');
     browser = await puppeteerCore.launch({
-      args: [
-        ...chromium.args,
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-infobars',
-        '--window-position=0,0',
-        '--ignore-certifcate-errors',
-        '--ignore-certifcate-errors-spki-list',
-        '--disable-gpu',
-        '--disable-dev-shm-usage',
-        '--disable-software-rasterizer',
-        '--disable-blink-features=AutomationControlled',
-      ],
+      args: [...chromium.args],
       defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath(),
       headless: chromium.headless,
