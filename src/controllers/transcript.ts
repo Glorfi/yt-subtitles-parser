@@ -1,5 +1,5 @@
 import { NextFunction, Response } from 'express';
-import getSubtitles from '../../api/getYouTubeCaptions.js';
+import getSubtitles from '../utils/getYouTubeCaptions.js';
 import { Transcripts } from '../db/mongoConnector.js';
 import { IParseCaptionBodyRequest } from '../interfaces/requests/ParseCaption.js';
 import decodeHTMLEntities from '../utils/decodeHTMLEntities.js';
