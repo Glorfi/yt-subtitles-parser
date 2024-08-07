@@ -81,17 +81,14 @@ async function getSubtitles(
 ): Promise<SubtitlesResponse | null> {
   let browser = null;
 
-  console.log(`Environment: ${process.env.NODE_ENV}`);
   if (process.env.NODE_ENV === 'development') {
-    console.log('Development environment detected');
     browser = await puppeteer.launch({
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
       headless: true,
     });
   } else if (process.env.NODE_ENV === 'production') {
-    console.log('Production environment detected');
     const executablePath = await chromium.executablePath();
-    console.log(`Chromium executable path: ${executablePath}`);
+
     browser = await puppeteerCore.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
@@ -101,34 +98,14 @@ async function getSubtitles(
   }
 
   if (!browser) {
-    console.error('Failed to create a browser instance');
     throw new Error('Browser instance is not created');
   }
-
-  // try {
-  //   if (process.env.NODE_ENV === 'development') {
-  //     console.log('Development browser: ');
-  //     browser = await puppeteer.launch({
-  //       args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  //       headless: true,
-  //     });
-  //   } else if (process.env.NODE_ENV === 'production') {
-  //     console.log('Production browser: ');
-  //     browser = await puppeteerCore.launch({
-  //       args: chromium.args,
-  //       defaultViewport: chromium.defaultViewport,
-  //       executablePath: await chromium.executablePath(),
-  //       headless: chromium.headless,
-  //     });
-  //   }
 
   if (!browser) {
     throw new Error('Browser instance is not created');
   }
 
   const page = await browser.newPage();
-
-  console.log(`Открываем видео: https://www.youtube.com/watch?v=${videoId}`);
 
   // Открываем страницу видео на YouTube
   await page.goto(`https://www.youtube.com/watch?v=${videoId}`, {
@@ -138,7 +115,6 @@ async function getSubtitles(
   // Получаем HTML страницы
   const content = await page.content();
   const videoTitle = (await page.title()).split(' - ')[0];
-  console.log('Название видео:', videoTitle);
 
   // Ищем URL субтитров с помощью регулярного выражения
   const match = content.match(
@@ -174,11 +150,9 @@ async function getSubtitles(
       await browser.close();
       return obj;
     } catch (error) {
-      console.error('XML Parsing Error:', error);
       throw new Error('XML Parsing Error:');
     }
   } else {
-    console.log('Субтитры не найдены');
     throw new Error('Субтитры не найдены');
   }
 }
