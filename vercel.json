@@ -15,6 +15,9 @@
         },
         "api/dbConnect.ts": {
             "maxDuration": 60
+        },
+        "api/getYouTubeCaptions.ts": {
+            "maxDuration": 60
         }
     }
 }
