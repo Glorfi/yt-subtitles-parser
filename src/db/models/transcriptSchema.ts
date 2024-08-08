@@ -7,11 +7,15 @@ const SubtitleSchema = new mongoose.Schema({
     required: true,
   },
 
-  start: {
+  offset: {
     type: String,
     required: true,
   },
-  dur: {
+  duration: {
+    type: String,
+    required: true,
+  },
+  lang: {
     type: String,
     required: true,
   },
@@ -20,7 +24,7 @@ const SubtitleSchema = new mongoose.Schema({
 const transcriptSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true,
+    required: false,
   },
   subtitleList: [SubtitleSchema],
   rawText: {
