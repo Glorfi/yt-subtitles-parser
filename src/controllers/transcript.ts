@@ -1,8 +1,9 @@
 import { NextFunction, Response } from 'express';
-import getSubtitles from '../../api/getYouTubeCaptions.js';
+//import getSubtitles from '../../api/getYouTubeCaptions.js';
 import { Transcripts } from '../db/mongoConnector.js';
 import { IParseCaptionBodyRequest } from '../interfaces/requests/ParseCaption.js';
 import decodeHTMLEntities from '../utils/decodeHTMLEntities.js';
+import { getSubtitles, getVideoDetails } from 'youtube-caption-extractor';
 
 export async function parseCaptions(
   req: IParseCaptionBodyRequest,
@@ -11,27 +12,19 @@ export async function parseCaptions(
 ) {
   const videoId = req.body.videoId;
 
-  const subs = await getSubtitles(videoId);
+  const subs = await getSubtitles({ videoID: videoId, lang: 'en' });
+  const videoDetails = await getVideoDetails({ videoID: videoId, lang: 'en' });
   if (!subs) {
     return res.status(500).send('Error fetching subtitles');
   }
 
-  const purifiedSubs = subs.subtitles.map((item: any) => {
-    const text = decodeHTMLEntities(item._);
-    return {
-      ...item,
-      _: text,
-    };
-  });
-  //const rawText = purifiedSubs.map((item: any) => item._).join('');
-
   const transcriptEntity = {
-    title: subs.title,
-    subtitleList: purifiedSubs,
+    title: videoDetails.title,
+    subtitleList: subs,
   };
   Transcripts.create(transcriptEntity)
     .then((transcript) => {
-      res.send(transcript._id);
+      res.send(transcript);
     })
     .catch((err) => next(err));
 }

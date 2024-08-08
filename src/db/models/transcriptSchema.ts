@@ -2,19 +2,18 @@ import { required } from 'joi';
 import mongoose from 'mongoose';
 
 const SubtitleSchema = new mongoose.Schema({
-  _: {
+  text: {
     type: String,
     required: true,
   },
-  $: {
-    start: {
-      type: String,
-      required: true,
-    },
-    dur: {
-      type: String,
-      required: true,
-    },
+
+  start: {
+    type: String,
+    required: true,
+  },
+  dur: {
+    type: String,
+    required: true,
   },
 });
 
