@@ -42,43 +42,43 @@ export const getVideoDetails = async ({
   const data = await response.text();
 
   console.log(data); // Логируем весь ответ от YouTube
+  return data;
+  // const titleMatch = data.match(
+  //   /<meta name="title" content="([^"]*|[^"]*[^&]quot;[^"]*)">/
+  // );
+  // const descriptionMatch = data.match(
+  //   /<meta name="description" content="([^"]*|[^"]*[^&]quot;[^"]*)">/
+  // );
 
-  const titleMatch = data.match(
-    /<meta name="title" content="([^"]*|[^"]*[^&]quot;[^"]*)">/
-  );
-  const descriptionMatch = data.match(
-    /<meta name="description" content="([^"]*|[^"]*[^&]quot;[^"]*)">/
-  );
+  // const title = titleMatch ? titleMatch[1] : 'No title found';
+  // const description = descriptionMatch
+  //   ? descriptionMatch[1]
+  //   : 'No description found';
 
-  const title = titleMatch ? titleMatch[1] : 'No title found';
-  const description = descriptionMatch
-    ? descriptionMatch[1]
-    : 'No description found';
+  // if (!data.includes('captionTracks')) {
+  //   console.log(`No captions found for video: ${videoID}`);
+  //   return {
+  //     title,
+  //     description,
+  //     subtitles: [],
+  //   };
+  // }
 
-  if (!data.includes('captionTracks')) {
-    console.log(`No captions found for video: ${videoID}`);
-    return {
-      title,
-      description,
-      subtitles: [],
-    };
-  }
+  // const regex = /"captionTracks":(\[.*?\])/;
+  // const regexResult = regex.exec(data);
 
-  const regex = /"captionTracks":(\[.*?\])/;
-  const regexResult = regex.exec(data);
+  // if (!regexResult) {
+  //   console.log(`Failed to extract captionTracks from video: ${videoID}`);
+  //   return {
+  //     title,
+  //     description,
+  //     subtitles: [],
+  //   };
+  // }
 
-  if (!regexResult) {
-    console.log(`Failed to extract captionTracks from video: ${videoID}`);
-    return {
-      title,
-      description,
-      subtitles: [],
-    };
-  }
-
-  const [_, captionTracksJson] = regexResult;
-  const captionTracks: CaptionTrack[] = JSON.parse(captionTracksJson);
-  return captionTracks;
+  // const [_, captionTracksJson] = regexResult;
+  // const captionTracks: CaptionTrack[] = JSON.parse(captionTracksJson);
+  // return captionTracks;
 
   // const subtitle =
   //   captionTracks.find((track) => track.vssId === `.${lang}`) ||
