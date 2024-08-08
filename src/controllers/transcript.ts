@@ -4,6 +4,7 @@ import { Transcripts } from '../db/mongoConnector.js';
 import { IParseCaptionBodyRequest } from '../interfaces/requests/ParseCaption.js';
 
 import { getVideoDetails } from 'youtube-caption-extractor';
+import fetchVideoDetails from '../../api/getYouTubeCaptions.js';
 
 export async function parseCaptions(
   req: IParseCaptionBodyRequest,
@@ -13,7 +14,7 @@ export async function parseCaptions(
   const videoId = req.body.videoId;
 
   //const videoData = await getSubtitles({ videoID: videoId, lang: 'en' });
-  const videoDetails = await getVideoDetails({ videoID: videoId, lang: 'en' });
+  const videoDetails = await fetchVideoDetails(videoId);
   if (!videoDetails) {
     return res.status(500).send('Error fetching subtitles');
   }
