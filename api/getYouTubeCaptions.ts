@@ -1,4 +1,4 @@
-import { getVideoDetails } from 'youtube-caption-extractor';
+import { getVideoDetails } from '../src/utils/getVideoDetails.js';
 
 const fetchVideoDetails = async (videoID: string, lang = 'en') => {
   try {
