@@ -2,9 +2,8 @@ import { NextFunction, Response } from 'express';
 //import getSubtitles from '../../api/getYouTubeCaptions.js';
 import { Transcripts } from '../db/mongoConnector.js';
 import { IParseCaptionBodyRequest } from '../interfaces/requests/ParseCaption.js';
-import decodeHTMLEntities from '../utils/decodeHTMLEntities.js';
-import { getSubtitles, getVideoDetails } from 'youtube-caption-extractor';
-import getYouTubeCaptions from '../../api/getYouTubeCaptions.js';
+
+import { getVideoDetails } from 'youtube-caption-extractor';
 
 export async function parseCaptions(
   req: IParseCaptionBodyRequest,
