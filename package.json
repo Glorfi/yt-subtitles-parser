@@ -18,6 +18,7 @@
     "dev": "nodemon --watch src/ -e ts --exec \"npm run local\"",
     "dev2": "nodemon --watch src/ -e ts --exec \"npm run local-network\"",
     "start": "npm run build && node build/index",
+    "start2": "node build/index",
     "ts.check": "tsc --project tsconfig.json",
     "lint": "npx eslint ./src",
     "format": "npx eslint ./src --fix"
