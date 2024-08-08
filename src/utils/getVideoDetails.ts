@@ -56,7 +56,7 @@ export const getVideoDetails = async ({
     : 'No description found';
 
   if (!data.includes('captionTracks')) {
-    console.warn(`No captions found for video: ${videoID}`);
+    console.log(`No captions found for video: ${videoID}`);
     return {
       title,
       description,
@@ -68,7 +68,7 @@ export const getVideoDetails = async ({
   const regexResult = regex.exec(data);
 
   if (!regexResult) {
-    console.warn(`Failed to extract captionTracks from video: ${videoID}`);
+    console.log(`Failed to extract captionTracks from video: ${videoID}`);
     return {
       title,
       description,
@@ -85,7 +85,7 @@ export const getVideoDetails = async ({
     captionTracks.find((track) => track.vssId && track.vssId.match(`.${lang}`));
 
   if (!subtitle?.baseUrl) {
-    console.warn(`Could not find ${lang} captions for ${videoID}`);
+    console.log(`Could not find ${lang} captions for ${videoID}`);
     return {
       title,
       description,
@@ -114,7 +114,7 @@ export const getVideoDetails = async ({
       const durResult = durRegex.exec(line);
 
       if (!startResult || !durResult) {
-        console.warn(`Failed to extract start or duration from line: ${line}`);
+        console.log(`Failed to extract start or duration from line: ${line}`);
         return acc;
       }
 
