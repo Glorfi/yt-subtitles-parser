@@ -13,14 +13,15 @@ export async function parseCaptions(
 ) {
   const videoId = req.body.videoId;
 
-  const videoData = await getYouTubeCaptions({ videoID: videoId, lang: 'en' });
-  if (!videoData) {
+  //const videoData = await getSubtitles({ videoID: videoId, lang: 'en' });
+  const videoDetails = await getVideoDetails({ videoID: videoId, lang: 'en' });
+  if (!videoDetails) {
     return res.status(500).send('Error fetching subtitles');
   }
 
   const transcriptEntity = {
-    title: videoData.videoDetails.title,
-    subtitleList: videoData.subtitles,
+    title: videoDetails.title,
+    subtitleList: videoDetails.subtitles,
   };
   Transcripts.create(transcriptEntity)
     .then((transcript) => {
