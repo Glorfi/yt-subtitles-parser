@@ -60,104 +60,118 @@
 //   // Закрываем браузер
 //   await browser.close();
 // }
-import * as puppeteer from 'puppeteer';
-import chromium from '@sparticuz/chromium';
-import puppeteerCore from 'puppeteer-core';
-import xml2js from 'xml2js';
-import dotenv from 'dotenv';
+// import * as puppeteer from 'puppeteer';
+// import chromium from '@sparticuz/chromium';
+// import puppeteerCore from 'puppeteer-core';
+// import xml2js from 'xml2js';
+// import dotenv from 'dotenv';
 
-interface Subtitle {
-  _: string;
-}
+// interface Subtitle {
+//   _: string;
+// }
 
-interface SubtitlesResponse {
-  title: string;
-  subtitles: Subtitle[];
-}
-dotenv.config();
+// interface SubtitlesResponse {
+//   title: string;
+//   subtitles: Subtitle[];
+// }
+// dotenv.config();
 
-async function getSubtitles(
-  videoId: string
-): Promise<SubtitlesResponse | null> {
-  let browser = null;
+// async function getSubtitles(
+//   videoId: string
+// ): Promise<SubtitlesResponse | null> {
+//   let browser = null;
 
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Staring dev browser');
-    browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      headless: true,
-    });
-  } else if (process.env.NODE_ENV === 'production') {
-    console.log('Staring prod browser');
-    browser = await puppeteerCore.launch({
-      args: [...chromium.args],
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
-    });
+//   if (process.env.NODE_ENV === 'development') {
+//     console.log('Staring dev browser');
+//     browser = await puppeteer.launch({
+//       args: ['--no-sandbox', '--disable-setuid-sandbox'],
+//       headless: true,
+//     });
+//   } else if (process.env.NODE_ENV === 'production') {
+//     console.log('Staring prod browser');
+//     browser = await puppeteerCore.launch({
+//       args: [...chromium.args],
+//       defaultViewport: chromium.defaultViewport,
+//       executablePath: await chromium.executablePath(),
+//       headless: chromium.headless,
+//     });
+//   }
+
+//   if (!browser) {
+//     throw new Error('Browser instance is not created');
+//   }
+
+//   const page = await browser.newPage();
+//   await page.setUserAgent(
+//     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+//   );
+
+//   await page.goto(`https://www.youtube.com/watch?v=${videoId}`, {
+//     waitUntil: 'networkidle0',
+//   });
+
+//   const content = await page.content();
+//   const videoTitle = (await page.title()).split(' - ')[0];
+//   console.log('Video Title:', videoTitle);
+
+//   const match = content.match(
+//     /"https:\/\/www\.youtube\.com\/api\/timedtext\?([^"]+)"/
+//   );
+//   console.log('Match:', match);
+
+//   if (match) {
+//     const subtitleUrl = decodeURIComponent(
+//       match[0].replace(/\\u0026/g, '&').slice(1, -1)
+//     );
+//     console.log('URL субтитров:', subtitleUrl);
+
+//     try {
+//       const response = await page.goto(subtitleUrl, {
+//         waitUntil: 'networkidle2',
+//       });
+//       if (!response) {
+//         throw new Error('Failed to fetch subtitles');
+//       }
+
+//       const subtitles = await response.text();
+//       const cleanedSubtitles = subtitles.replace(/^\s+/, '');
+
+//       const xmlParser = new xml2js.Parser();
+//       try {
+//         const result = await xmlParser.parseStringPromise(cleanedSubtitles);
+//         const content = result.transcript.text;
+//         const obj: SubtitlesResponse = {
+//           title: videoTitle,
+//           subtitles: content,
+//         };
+//         await browser.close();
+//         return obj;
+//       } catch (xmlError) {
+//         console.error('XML Parsing Error:', xmlError);
+//         throw new Error('XML Parsing Error');
+//       }
+//     } catch (fetchError) {
+//       console.error('Error fetching subtitles:', fetchError);
+//       throw new Error('Failed to fetch subtitles');
+//     }
+//   } else {
+//     console.error('Subtitles not found in the page content');
+//     throw new Error('Субтитры не найдены');
+//   }
+// }
+
+// export default getSubtitles;
+import { Request, Response } from 'express';
+import { getSubtitles, getVideoDetails } from 'youtube-caption-extractor';
+
+export default async function getYouTubeCaptions(obj: any) {
+  const { videoID, lang } = obj;
+
+  try {
+    const subtitles = await getSubtitles({ videoID, lang }); // call this if you only need the subtitles
+    const videoDetails = await getVideoDetails({ videoID, lang }); // call this if you need the video title and description, along with the subtitles
+    return { subtitles, videoDetails }
+  } catch (error) {
+    throw new Error("BLyat")
   }
-
-  if (!browser) {
-    throw new Error('Browser instance is not created');
-  }
-
-  const page = await browser.newPage();
-  await page.setUserAgent(
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-  );
-
-  await page.goto(`https://www.youtube.com/watch?v=${videoId}`, {
-    waitUntil: 'networkidle0',
-  });
-
-  const content = await page.content();
-  const videoTitle = (await page.title()).split(' - ')[0];
-  console.log('Video Title:', videoTitle);
-
-  const match = content.match(
-    /"https:\/\/www\.youtube\.com\/api\/timedtext\?([^"]+)"/
-  );
-  console.log('Match:', match);
-
-  if (match) {
-    const subtitleUrl = decodeURIComponent(
-      match[0].replace(/\\u0026/g, '&').slice(1, -1)
-    );
-    console.log('URL субтитров:', subtitleUrl);
-
-    try {
-      const response = await page.goto(subtitleUrl, {
-        waitUntil: 'networkidle2',
-      });
-      if (!response) {
-        throw new Error('Failed to fetch subtitles');
-      }
-
-      const subtitles = await response.text();
-      const cleanedSubtitles = subtitles.replace(/^\s+/, '');
-
-      const xmlParser = new xml2js.Parser();
-      try {
-        const result = await xmlParser.parseStringPromise(cleanedSubtitles);
-        const content = result.transcript.text;
-        const obj: SubtitlesResponse = {
-          title: videoTitle,
-          subtitles: content,
-        };
-        await browser.close();
-        return obj;
-      } catch (xmlError) {
-        console.error('XML Parsing Error:', xmlError);
-        throw new Error('XML Parsing Error');
-      }
-    } catch (fetchError) {
-      console.error('Error fetching subtitles:', fetchError);
-      throw new Error('Failed to fetch subtitles');
-    }
-  } else {
-    console.error('Subtitles not found in the page content');
-    throw new Error('Субтитры не найдены');
-  }
 }
-
-export default getSubtitles;

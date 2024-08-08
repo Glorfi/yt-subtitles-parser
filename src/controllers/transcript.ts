@@ -4,6 +4,7 @@ import { Transcripts } from '../db/mongoConnector.js';
 import { IParseCaptionBodyRequest } from '../interfaces/requests/ParseCaption.js';
 import decodeHTMLEntities from '../utils/decodeHTMLEntities.js';
 import { getSubtitles, getVideoDetails } from 'youtube-caption-extractor';
+import getYouTubeCaptions from '../../api/getYouTubeCaptions.js';
 
 export async function parseCaptions(
   req: IParseCaptionBodyRequest,
@@ -12,15 +13,14 @@ export async function parseCaptions(
 ) {
   const videoId = req.body.videoId;
 
-  const subs = await getSubtitles({ videoID: videoId, lang: 'en' });
-  const videoDetails = await getVideoDetails({ videoID: videoId, lang: 'en' });
-  if (!subs) {
+  const videoData = await getYouTubeCaptions({ videoID: videoId, lang: 'en' });
+  if (!videoData) {
     return res.status(500).send('Error fetching subtitles');
   }
 
   const transcriptEntity = {
-    title: videoDetails.title,
-    subtitleList: subs,
+    title: videoData.videoDetails.title,
+    subtitleList: videoData.subtitles,
   };
   Transcripts.create(transcriptEntity)
     .then((transcript) => {

@@ -1,5 +1,5 @@
 import express from 'express';
-import getSubtitles from '../../api/getYouTubeCaptions.js';
+
 import toSrtTime from '../utils/toSrtTime.js';
 import fs from 'fs';
 import decodeHTMLEntities from '../utils/decodeHTMLEntities.js';
