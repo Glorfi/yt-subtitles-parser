@@ -68,6 +68,7 @@
     "winston-mongodb": "^5.1.1",
     "xml2js": "^0.6.2",
     "youtube-caption-extractor": "^1.4.3",
-    "youtube-transcript-shorts": "^1.2.2"
+    "youtube-transcript-shorts": "^1.2.2",
+    "youtubei.js": "^10.3.0"
   }
 }

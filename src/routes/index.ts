@@ -6,10 +6,12 @@ import decodeHTMLEntities from '../utils/decodeHTMLEntities.js';
 import { Transcripts } from '../db/mongoConnector.js';
 import { parseCaptions } from '../controllers/transcript.js';
 import { parseAndTransformToText } from '../controllers/texts.js';
+import { parseWithInnerTube } from '../utils/parseWithInnerTube.js';
 
 export const router = express.Router();
 
 router.post('/subtitles', parseCaptions);
+router.post('/subs', parseWithInnerTube);
 router.post('/texts', parseAndTransformToText);
 
 // MAKING SRT LOGIC
